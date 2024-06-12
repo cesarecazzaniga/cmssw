@@ -14,9 +14,9 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
         "+keep pdgId == 22 && status == 1 && (pt > 10 || isPromptFinalState())", # keep gamma above 10 GeV (or all prompt) and its first parent
         "+keep abs(pdgId) == 11 && status == 1 && (pt > 3 || isPromptFinalState())", # keep first parent of electrons above 3 GeV (or prompt)
         "keep++ abs(pdgId) == 15",                                         # but keep keep taus with decays
-	"drop  status > 30 && status < 70 ", 				   # remove pythia8 garbage
+	"drop  status > 43 && status < 70 ", 				   # remove pythia8 garbage
 	"drop  pdgId == 21 && pt < 5",                                     # remove pythia8 garbage
-        "drop   status == 2 && abs(pdgId) == 21",                          # but remove again gluons in the inheritance chain
+            "drop   status == 2 && abs(pdgId) == 21",                          # but remove again gluons in the inheritance chain
         "keep abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25 || abs(pdgId) == 6 || abs(pdgId) == 37 ",   # keep VIP(articles)s
         "keep abs(pdgId) == 310 && abs(eta) < 2.5 && pt > 1 ",                                                     # keep K0
         "+keep abs(pdgId) == 13 && status == 1", # keep muon parents
@@ -24,6 +24,8 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 	"keep (4 <= abs(pdgId) <= 5)",
 # keep light-flavour quarks and gluons for parton-based jet flavour
 	"keep (1 <= abs(pdgId) <= 3 || pdgId = 21) & (status = 2 || status = 11 || status = 71 || status = 72) && pt>5", 
+#keep gluons from ISR pythia8
+    "keep abs(pdgId) = 21 && abs(status) = 43 && pt > 5",
 # keep onia states, phi, X(3872), Z(4430)+ and psi(4040)
         "keep  abs(pdgId) == 323  && abs(eta) < 2.5 && pt > 1",
         "keep+ abs(pdgId) == 333",
