@@ -217,6 +217,10 @@ private:
   double asymmetryThirdJetCut_;
   double balanceThirdJetCut_;
 
+  //cuts for trigger safe selections
+  double ptCut_Lo_trg_safe_;
+  double ptCut_Hi_trg_safe_;
+
   //variables specific for Scouting jets
   double jetEnergy;
 
@@ -273,6 +277,25 @@ private:
   MonitorElement* mHFrac_Forward;
   MonitorElement* mEFrac_Forward;
 
+  MonitorElement* mPt_Barrel_Lo;
+  MonitorElement* mEta_Barrel_Lo;
+  MonitorElement* mPhi_Barrel_Lo;
+  MonitorElement* mConstituents_Barrel_Lo;
+  MonitorElement* mHFrac_Barrel_Lo;
+
+  MonitorElement* mPt_EndCap_Lo;
+  MonitorElement* mEta_EndCap_Lo;
+  MonitorElement* mPhi_EndCap_Lo;
+  MonitorElement* mConstituents_EndCap_Lo;
+  MonitorElement* mHFrac_EndCap_Lo;
+
+  MonitorElement* mPt_Forward_Lo;
+  MonitorElement* mEta_Forward_Lo;
+  MonitorElement* mPhi_Forward_Lo;
+  MonitorElement* mConstituents_Forward_Lo;
+  MonitorElement* mHFrac_Forward_Lo;
+
+
   MonitorElement* mPt_Barrel_Hi;
   MonitorElement* mEta_Barrel_Hi;
   MonitorElement* mPhi_Barrel_Hi;
@@ -300,7 +323,16 @@ private:
   MonitorElement* mPhiFirst;
   MonitorElement* mPtFirst;
 
+  //Adding monitoring elements for trigger safe jet selection
+  MonitorElement* mPt_Hi_trg_safe;
+  MonitorElement* mPt_Lo_trg_safe;
+  MonitorElement* mPt_1_Hi_trg_safe;
+  MonitorElement* mPt_1_Lo_trg_safe;
+
+
+
   // Events passing the jet triggers
+  MonitorElement* mEta_Lo;
   MonitorElement* mPhi_Lo;
   MonitorElement* mPt_Lo;
 

@@ -197,12 +197,16 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   }
   //check later if some of those are also needed for PFJets
   leadJetFlag_ = 0;
-  jetLoPass_ = 0;
-  jetHiPass_ = 0;
+  //jetLoPass_ = 0;
+  //jetHiPass_ = 0;
   ptThreshold_ = 20.;
   ptThresholdUnc_ = 20.;
   asymmetryThirdJetCut_ = 5.;
   balanceThirdJetCut_ = 0.2;
+
+  //NEW part for the trigger safe selections
+  ptCut_Lo_trg_safe_ = 90.;  
+  ptCut_Hi_trg_safe_ = 460.;
 
   theTriggerResultsLabel_ = pSet.getParameter<edm::InputTag>("TriggerResultsLabel");
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
@@ -413,9 +417,17 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   mPt_2 = ibooker.book1D("Pt_2", "Pt spectrum of jets - range 2", 60, 0, 300);
   mPt_3 = ibooker.book1D("Pt_3", "Pt spectrum of jets - range 3", 100, 0, 5000);
   mPt_log = ibooker.book1D("Pt_log", "Pt spectrum of jets - log", 100, 0, 50);
+
+  //********************* NEW PART *********************
+  mPt_Lo_trg_safe = ibooker.book1D("Pt_Lo_trg_safe", "Pt (Pass Low Pt Jet Trigger [HLT_PFJet80_v])", 20, 0, 100);
+  mPt_1_Lo_trg_safe = ibooker.book1D("Pt_1_Lo_trg_safe", "Pt spectrum of jets - range 1 (Pass Low Pt Jet Trigger)", 20, 0, 100);
+  mPt_Hi_trg_safe = ibooker.book1D("Pt_Hi_trg_safe", "Pt (Pass Hi Pt Jet Trigger [HLT_PFJet450_v])", 100, 0, 1600); 
+  mPt_1_Hi_trg_safe = ibooker.book1D("Pt_1_Hi_trg_safe", "Pt spectrum of jets - range 1 (Pass Hi Pt Jet Trigger)", 100, 0, 1600);
+  
+
   // Low and high pt trigger paths
   mPt_Lo = ibooker.book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100);
-  //mEta_Lo                 = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
+  mEta_Lo  = ibooker.book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
   mPhi_Lo = ibooker.book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
 
   mPt_Hi = ibooker.book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 1600);  // original binning: 60,0,300
@@ -436,17 +448,42 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Hi", mPhi_Hi));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NJets", mNJets));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "NJets_Hi", mNJets_Hi));
+  //********************* NEW PART *********************
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Lo_trg_safe", mPt_Lo_trg_safe));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Hi_trg_safe", mPt_Hi_trg_safe));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_1_Lo_trg_safe", mPt_1_Lo_trg_safe));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_1_Hi_trg_safe", mPt_1_Hi_trg_safe));
 
-  //mPt_Barrel_Lo            = ibooker.book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);
-  //mPhi_Barrel_Lo           = ibooker.book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mPt_Barrel_Lo = ibooker.book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);
+  mPhi_Barrel_Lo = ibooker.book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mEta_Barrel_Lo = ibooker.book1D("Eta_Barrel_Lo", "Eta Barrel (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
+
   //if(!isJPTJet_){
   mConstituents_Barrel = ibooker.book1D("Constituents_Barrel", "Constituents Barrel", 50, 0, 100);
   map_of_MEs.insert(
       std::pair<std::string, MonitorElement*>(DirName + "/" + "Constituents_Barrel", mConstituents_Barrel));
   //}
 
-  //mPt_EndCap_Lo            = ibooker.book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);
-  //mPhi_EndCap_Lo           = ibooker.book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mPt_EndCap_Lo = ibooker.book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);
+  mPhi_EndCap_Lo = ibooker.book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mEta_EndCap_Lo = ibooker.book1D("Eta_EndCap_Lo", "Eta EndCap (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
+
+  mPt_Forward_Lo = ibooker.book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 20, 0, 100);
+  mPhi_Forward_Lo = ibooker.book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mEta_Forward_Lo = ibooker.book1D("Eta_Forward_Lo", "Eta Forward (Pass Low Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
+
+
+  //make map_of_MEs also for the low pt trigger paths
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Barrel_Lo", mPt_Barrel_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Barrel_Lo", mPhi_Barrel_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Eta_Barrel_Lo", mEta_Barrel_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_EndCap_Lo", mPt_EndCap_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_EndCap_Lo", mPhi_EndCap_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Eta_EndCap_Lo", mEta_EndCap_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Forward_Lo", mPt_Forward_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Forward_Lo", mPhi_Forward_Lo));
+  map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Eta_Forward_Lo", mEta_Forward_Lo));
+
   //if(!isJPTJet_){
   mConstituents_EndCap = ibooker.book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
   map_of_MEs.insert(
@@ -473,6 +510,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   mPhi_Forward_Hi = ibooker.book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   mEta_Forward_Hi = ibooker.book1D("Eta_Forward_Hi", "Eta Forward (Pass Hi Pt Jet Trigger)", etaBin_, etaMin_, etaMax_);
 
+  
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Barrel_Hi", mPt_Barrel_Hi));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Barrel_Hi", mPhi_Barrel_Hi));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Eta_Barrel_Hi", mEta_Barrel_Hi));
@@ -482,6 +520,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Pt_Forward_Hi", mPt_Forward_Hi));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Phi_Forward_Hi", mPhi_Forward_Hi));
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>(DirName + "/" + "Eta_Forward_Hi", mEta_Forward_Hi));
+
 
   mPhi_Barrel = ibooker.book1D("Phi_Barrel", "Phi_Barrel", phiBin_, phiMin_, phiMax_);
   mPt_Barrel = ibooker.book1D("Pt_Barrel", "Pt_Barrel", ptBin_, ptMin_, ptMax_);
@@ -2555,12 +2594,21 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   if (lowPtJetEventFlag_->on())
     lowPtJetEventFlag_->initRun(iRun, iSetup);
 
-  if (highPtJetEventFlag_->on() &&
-      highPtJetEventFlag_->expressionsFromDB(highPtJetEventFlag_->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    highPtJetExpr_ = highPtJetEventFlag_->expressionsFromDB(highPtJetEventFlag_->hltDBKey(), iSetup);
-  if (lowPtJetEventFlag_->on() &&
-      lowPtJetEventFlag_->expressionsFromDB(lowPtJetEventFlag_->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    lowPtJetExpr_ = lowPtJetEventFlag_->expressionsFromDB(lowPtJetEventFlag_->hltDBKey(), iSetup);
+  //OLD part of the code: not working now !
+  //if (highPtJetEventFlag_->on() &&
+  //    highPtJetEventFlag_->expressionsFromDB(highPtJetEventFlag_->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+  //  highPtJetExpr_ = highPtJetEventFlag_->expressionsFromDB(highPtJetEventFlag_->hltDBKey(), iSetup);
+  //if (lowPtJetEventFlag_->on() &&
+  //    lowPtJetEventFlag_->expressionsFromDB(lowPtJetEventFlag_->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+  //  lowPtJetExpr_ = lowPtJetEventFlag_->expressionsFromDB(lowPtJetEventFlag_->hltDBKey(), iSetup);
+  
+  
+  //loop over highPtJetExpr_, and print out the trigger names
+  //for (unsigned int i = 0; i < highPtJetExpr_.size(); ++i) {
+  //  std::cout << "step 2| highPtJetExpr_[i] = " << highPtJetExpr_[i] << std::endl;
+  //}
+  
+  
   //  if (!jetCorrectionService_.empty()){
   //    energycorrected=true;
   //  }
@@ -2637,11 +2685,35 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Int_t JetLoPass = 0;
   Int_t JetHiPass = 0;
 
+  Int_t JetLoPassTrgSafe = 0;
+  Int_t JetHiPassTrgSafe = 0;
+
   if (triggerResults.isValid()) {
     const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults);
 
     const unsigned int nTrig(triggerNames.size());
     for (unsigned int i = 0; i < nTrig; ++i) {
+    
+    
+    //Printouts checks to be removed later on
+    // print triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0, highPtJetExpr_[0].rfind("_v") + 2))
+    //std::cout << "triggerNames.triggerName(i) = " << triggerNames.triggerName(i) << std::endl;
+    //std::cout << "string used to find the trigger " << highPtJetExpr_[0].substr(0, highPtJetExpr_[0].rfind("_v") + 2) << std::endl;
+
+      //std::cout << "triggerName  = " << triggerNames.triggerName(i) << std::endl;
+      
+      //remove from highPtJetExpr_[0] the last characters after "_v" to match the trigger name
+      //highPtJetExpr_[0] 
+      
+      //std::cout << "lowPtJetExpr_[0] removing * after _v = " << (lowPtJetExpr_[0].substr(0, lowPtJetExpr_[0].rfind("_v") + 2)) << std::endl;
+      //std::cout << "lowPtJetExpr_[0]  = " << lowPtJetExpr_[0] << std::endl;
+      //std::cout << "highPtJetExpr_[0]  = " << highPtJetExpr_[0] << std::endl;
+      //std::cout << "High pT trigger condition: "  << (triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0, highPtJetExpr_[0].rfind("_v") + 2)) != std::string::npos)  << std::endl;
+      //std::cout << "Low pT trigger condition: "  << (triggerNames.triggerName(i).find(lowPtJetExpr_[0].substr(0, lowPtJetExpr_[0].rfind("_v") + 2)) != std::string::npos)  << std::endl;
+      //std::cout << "Trigger accept condition: " << triggerResults->accept(i) << std::endl;
+
+
+      
       if (triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0, highPtJetExpr_[0].rfind("_v") + 2)) !=
               std::string::npos &&
           triggerResults->accept(i))
@@ -2650,6 +2722,21 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                    std::string::npos &&
                triggerResults->accept(i))
         JetLoPass = 1;
+
+      //New Part for trigger safe selection
+      //here depending on the triggers we want to emply for the selection we can use a similar code as above
+      //note that instead using else if, we can use if for the trigger safety study
+      //some prototype below
+
+      if (triggerNames.triggerName(i).find(highPtJetExpr_[0].substr(0, highPtJetExpr_[0].rfind("_v") + 2)) !=
+              std::string::npos &&
+          triggerResults->accept(i))
+        JetHiPassTrgSafe = 1;
+      if (triggerNames.triggerName(i).find(lowPtJetExpr_[0].substr(0, lowPtJetExpr_[0].rfind("_v") + 2)) !=
+                   std::string::npos &&
+               triggerResults->accept(i))
+        JetLoPassTrgSafe = 1;
+
     }
   }
 
@@ -2972,6 +3059,67 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (isMiniAODJet_) {
     pass_correction_flag = true;
   }
+
+  //implement event selection
+  //count number of jets that pass pT threshold high and low for trigger safety
+  //if we have a trigger safety selection, we can use the following code
+  int numofjets_highpt_trg_safe = 0;
+  int numofjets_lowpt_trg_safe = 0;
+
+  for (unsigned int ijet = 0; ijet < collSize; ijet++) {
+    //bool thiscleaned=false;
+    Jet correctedJet_tmp;
+    bool pass_corrected_sel = false;
+
+
+    if (isCaloJet_) {
+      correctedJet_tmp = (*caloJets)[ijet];
+    }
+    //if (isJPTJet_){
+    //correctedJet=(*jptJets)[ijet];
+    //}
+    if (isPFJet_) {
+      correctedJet_tmp = (*pfJets)[ijet];
+    }
+    if (isPUPPIJet_) {
+      correctedJet_tmp = (*puppiJets)[ijet];
+    }
+    if (isMiniAODJet_) {
+      correctedJet_tmp = (*patJets)[ijet];
+    }
+    //if ((!isMiniAODJet_) && correctedJet_tmp.pt() > ptThresholdUnc_) {  //ptThresholdUnc_=30
+    //  pass_uncorrected_sel = true;
+   // }
+    //if (isMiniAODJet_ && (correctedJet_tmp.pt() * (*patJets)[ijet].jecFactor("Uncorrected")) > ptThresholdUnc_) {
+    //  pass_uncorrected_sel = true;
+   // }
+    if (pass_correction_flag && !isMiniAODJet_) {
+      if (isCaloJet_) {
+        scale = jetCorr->correction((*caloJets)[ijet]);
+      }
+      if (isPFJet_) {
+        scale = jetCorr->correction((*pfJets)[ijet]);
+      }
+      if (isPUPPIJet_) {
+        scale = jetCorr->correction((*puppiJets)[ijet]);
+      }
+      correctedJet_tmp.scaleEnergy(scale);
+    }
+    if (correctedJet_tmp.pt() > ptThreshold_) {  //ptThresholdUnc_=20
+      pass_corrected_sel = true;
+    }
+    
+    //count number of jets that pass pT threshold high and low for trigger safety
+    if (pass_corrected_sel) {
+      if (correctedJet_tmp.pt() > ptCut_Lo_trg_safe_) {
+        numofjets_lowpt_trg_safe++;
+      }
+      if (correctedJet_tmp.pt() > ptCut_Hi_trg_safe_) {
+        numofjets_highpt_trg_safe++;
+      }
+    }
+  }
+
 
   for (unsigned int ijet = 0; ijet < collSize; ijet++) {
     //bool thiscleaned=false;
@@ -4881,17 +5029,127 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           }  //substructure filling for boosted
         }  //substructure filling
       }
+      //New part for trigger safe selections studies
+      if (JetLoPassTrgSafe ==1 && numofjets_lowpt_trg_safe>0) {
+        //mPhi_Lo_trg_safe = map_of_MEs[DirName + "/" + "Phi_Lo_trg_safe"];
+        //if (mPhi_Lo_trg_safe && mPhi_Lo_trg_safe->getRootObject())
+        //  mPhi_Lo_trg_safe->Fill(correctedJet.phi());
+        mPt_Lo_trg_safe = map_of_MEs[DirName + "/" + "Pt_Lo_trg_safe"];
+        if (mPt_Lo_trg_safe && mPt_Lo_trg_safe->getRootObject())
+          mPt_Lo_trg_safe->Fill(correctedJet.pt());
+        mPt_1_Lo_trg_safe = map_of_MEs[DirName + "/" + "Pt_1_Lo_trg_safe"];
+        if (mPt_1_Lo_trg_safe && mPt_1_Lo_trg_safe->getRootObject() && ijet == 0)
+          mPt_1_Lo_trg_safe->Fill(correctedJet.pt());
+        //mEta_Lo_trg_safe = map_of_MEs[DirName + "/" + "Eta_Lo_trg_safe"];
+        //if (mEta_Lo_trg_safe && mEta_Lo_trg_safe->getRootObject())
+        //  mEta_Lo_trg_safe->Fill(correctedJet.eta());
+        //handle cases for endcap, barrel, and forward jets
+        //Barrel
+        //if (fabs(correctedJet.eta()) <= 1.3){
+        //  mPt_Barrel_Lo_trg_safe = map_of_MEs[DirName + "/" + "Pt_Barrel_Lo_trg_safe"];
+        //  if (mPt_Barrel_Lo_trg_safe && mPt_Barrel_Lo_trg_safe->getRootObject())
+        //    mPt_Barrel_Lo_trg_safe->Fill(correctedJet.pt());
+          
+        //  mEta_Barrel_Lo_trg_safe = map_of_MEs[DirName + "/" + "Eta_Barrel_Lo_trg_safe"];
+        //  if (mEta_Barrel_Lo_trg_safe && mEta_Barrel_Lo_trg_safe->getRootObject())
+        //    mEta_Barrel_Lo_trg_safe->Fill(correctedJet.eta());
+
+        //  mPhi_Barrel_Lo_trg_safe = map_of_MEs[DirName + "/" + "Phi_Barrel_Lo_trg_safe"];
+        //  if (mPhi_Barrel_Lo_trg_safe && mPhi_Barrel_Lo_trg_safe->getRootObject())
+         //   mPhi_Barrel_Lo_trg_safe->Fill(correctedJet.phi());
+        //Endcap
+        //Forward
+        }
+      if ( JetHiPassTrgSafe ==1 && numofjets_highpt_trg_safe>0){
+        //mEta_Hi_trg_safe = map_of_MEs[DirName + "/" + "Eta_Hi_trg_safe"];
+        //if (mEta_Hi_trg_safe && mEta_Hi_trg_safe->getRootObject())
+        //  mEta_Hi_trg_safe->Fill(correctedJet.eta());
+        //mPhi_Hi_trg_safe = map_of_MEs[DirName + "/" + "Phi_Hi_trg_safe"];
+        //if (mPhi_Hi_trg_safe && mPhi_Hi_trg_safe->getRootObject())
+        //  mPhi_Hi_trg_safe->Fill(correctedJet.phi());
+        mPt_Hi_trg_safe = map_of_MEs[DirName + "/" + "Pt_Hi_trg_safe"];
+        if (mPt_Hi_trg_safe && mPt_Hi_trg_safe->getRootObject())
+          mPt_Hi_trg_safe->Fill(correctedJet.pt());
+        mPt_1_Hi_trg_safe = map_of_MEs[DirName + "/" + "Pt_1_Hi_trg_safe"];
+        if (mPt_1_Hi_trg_safe && mPt_1_Hi_trg_safe->getRootObject() && ijet == 0)
+          mPt_1_Hi_trg_safe->Fill(correctedJet.pt());
+        //handle cases for endcap, barrel, and forward jets
+        //Barrel
+        //if (fabs(correctedJet.eta()) <= 1.3){
+        //  mPt_Barrel_Hi_trg_safe = map_of_MEs[DirName + "/" + "Pt_Barrel_Hi_trg_safe"];
+        //  if (mPt_Barrel_Hi_trg_safe && mPt_Barrel_Hi_trg_safe->getRootObject())
+        //    mPt_Barrel_Hi_trg_safe->Fill(correctedJet.pt());
+          
+        //  mEta_Barrel_Hi_trg_safe = map_of_MEs[DirName + "/" + "Eta_Barrel_Hi_trg_safe"];
+        //  if (mEta_Barrel_Hi_trg_safe && mEta_Barrel_Hi_trg_safe->getRootObject())
+        //    mEta_Barrel_Hi_trg_safe->Fill(correctedJet.eta());
+
+        //  mPhi_Barrel_Hi_trg_safe = map_of_MEs[DirName + "/" + "Phi_Barrel_Hi_trg_safe"];
+        //  if (mPhi_Barrel_Hi_trg_safe && mPhi_Barrel_Hi_trg_safe->getRootObject())
+        //    mPhi_Barrel_Hi_trg_safe->Fill(correctedJet.phi());
+        //Endcap
+        //else if (fabs(correctedJet.eta()) <= 3
+        //Forward
+      }
       // --- Event passed the low pt jet trigger // the following plots are not filled for calo, pf, pf chs, and puppi jets
-      if (jetLoPass_ == 1) {
+      if (JetLoPass == 1) {
         mPhi_Lo = map_of_MEs[DirName + "/" + "Phi_Lo"];
         if (mPhi_Lo && mPhi_Lo->getRootObject())
           mPhi_Lo->Fill(correctedJet.phi());
         mPt_Lo = map_of_MEs[DirName + "/" + "Pt_Lo"];
         if (mPt_Lo && mPt_Lo->getRootObject())
           mPt_Lo->Fill(correctedJet.pt());
+        mEta_Lo = map_of_MEs[DirName + "/" + "Eta_Lo"];
+        if (mEta_Lo && mEta_Lo->getRootObject())
+          mEta_Lo->Fill(correctedJet.eta());
+        //handle cases for endcap, barrel, and forward jets
+        //Barrel
+        if (fabs(correctedJet.eta()) <= 1.3){
+          mPt_Barrel_Lo = map_of_MEs[DirName + "/" + "Pt_Barrel_Lo"];
+          if (mPt_Barrel_Lo && mPt_Barrel_Lo->getRootObject())
+            mPt_Barrel_Lo->Fill(correctedJet.pt());
+          
+          mEta_Barrel_Lo = map_of_MEs[DirName + "/" + "Eta_Barrel_Lo"];
+          if (mEta_Barrel_Lo && mEta_Barrel_Lo->getRootObject())
+            mEta_Barrel_Lo->Fill(correctedJet.eta());
+
+          mPhi_Barrel_Lo = map_of_MEs[DirName + "/" + "Phi_Barrel_Lo"];
+          if (mPhi_Barrel_Lo && mPhi_Barrel_Lo->getRootObject())
+            mPhi_Barrel_Lo->Fill(correctedJet.phi());
+
+        }
+        //Endcap
+        else if (fabs(correctedJet.eta()) <= 3){
+          mPt_EndCap_Lo = map_of_MEs[DirName + "/" + "Pt_EndCap_Lo"];
+          if (mPt_EndCap_Lo && mPt_EndCap_Lo->getRootObject())
+            mPt_EndCap_Lo->Fill(correctedJet.pt());
+
+          mEta_EndCap_Lo = map_of_MEs[DirName + "/" + "Eta_EndCap_Lo"];
+          if (mEta_EndCap_Lo && mEta_EndCap_Lo->getRootObject())
+            mEta_EndCap_Lo->Fill(correctedJet.eta());
+
+          mPhi_EndCap_Lo = map_of_MEs[DirName + "/" + "Phi_EndCap_Lo"];
+          if (mPhi_EndCap_Lo && mPhi_EndCap_Lo->getRootObject())
+            mPhi_EndCap_Lo->Fill(correctedJet.phi());
+        }
+        //Forward
+        else {
+          mPt_Forward_Lo = map_of_MEs[DirName + "/" + "Pt_Forward_Lo"];
+          if (mPt_Forward_Lo && mPt_Forward_Lo->getRootObject())
+            mPt_Forward_Lo->Fill(correctedJet.pt());
+
+          mEta_Forward_Lo = map_of_MEs[DirName + "/" + "Eta_Forward_Lo"];
+          if (mEta_Forward_Lo && mEta_Forward_Lo->getRootObject())
+            mEta_Forward_Lo->Fill(correctedJet.eta());
+
+          mPhi_Forward_Lo = map_of_MEs[DirName + "/" + "Phi_Forward_Lo"];
+          if (mPhi_Forward_Lo && mPhi_Forward_Lo->getRootObject())
+            mPhi_Forward_Lo->Fill(correctedJet.phi());
+
+        }
       }
       // --- Event passed the high pt jet trigger // the following plots are not filled for calo, pf, pf chs, and puppi jets
-      if (jetHiPass_ == 1 && correctedJet.pt() > 100.) {
+      if (JetHiPass == 1 && correctedJet.pt() > 100.) {
         mEta_Hi = map_of_MEs[DirName + "/" + "Eta_Hi"];
         if (mEta_Hi && mEta_Hi->getRootObject())
           mEta_Hi->Fill(correctedJet.eta());
@@ -4901,6 +5159,52 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         mPt_Hi = map_of_MEs[DirName + "/" + "Pt_Hi"];
         if (mPt_Hi && mPt_Hi->getRootObject())
           mPt_Hi->Fill(correctedJet.pt());
+        //handle cases for endcap, barrel, and forward jets
+        //Barrel
+        if (fabs(correctedJet.eta()) <= 1.3){
+          mPt_Barrel_Hi = map_of_MEs[DirName + "/" + "Pt_Barrel_Hi"];
+          if (mPt_Barrel_Hi && mPt_Barrel_Hi->getRootObject())
+            mPt_Barrel_Hi->Fill(correctedJet.pt());
+          
+          mEta_Barrel_Hi = map_of_MEs[DirName + "/" + "Eta_Barrel_Hi"];
+          if (mEta_Barrel_Hi && mEta_Barrel_Hi->getRootObject())
+            mEta_Barrel_Hi->Fill(correctedJet.eta());
+
+          mPhi_Barrel_Hi = map_of_MEs[DirName + "/" + "Phi_Barrel_Hi"];
+          if (mPhi_Barrel_Hi && mPhi_Barrel_Hi->getRootObject())
+            mPhi_Barrel_Hi->Fill(correctedJet.phi());
+
+        }
+        //Endcap
+        else if (fabs(correctedJet.eta()) <= 3){
+          mPt_EndCap_Hi = map_of_MEs[DirName + "/" + "Pt_EndCap_Hi"];
+          if (mPt_EndCap_Hi && mPt_EndCap_Hi->getRootObject())
+            mPt_EndCap_Hi->Fill(correctedJet.pt());
+
+          mEta_EndCap_Hi = map_of_MEs[DirName + "/" + "Eta_EndCap_Hi"];
+          if (mEta_EndCap_Hi && mEta_EndCap_Hi->getRootObject())
+            mEta_EndCap_Hi->Fill(correctedJet.eta());
+
+          mPhi_EndCap_Hi = map_of_MEs[DirName + "/" + "Phi_EndCap_Hi"];
+          if (mPhi_EndCap_Hi && mPhi_EndCap_Hi->getRootObject())
+            mPhi_EndCap_Hi->Fill(correctedJet.phi());
+        }
+        //Forward
+        else {
+          mPt_Forward_Hi = map_of_MEs[DirName + "/" + "Pt_Forward_Hi"];
+          if (mPt_Forward_Hi && mPt_Forward_Hi->getRootObject())
+            mPt_Forward_Hi->Fill(correctedJet.pt());
+
+          mEta_Forward_Hi = map_of_MEs[DirName + "/" + "Eta_Forward_Hi"];
+          if (mEta_Forward_Hi && mEta_Forward_Hi->getRootObject())
+            mEta_Forward_Hi->Fill(correctedJet.eta());
+
+          mPhi_Forward_Hi = map_of_MEs[DirName + "/" + "Phi_Forward_Hi"];
+          if (mPhi_Forward_Hi && mPhi_Forward_Hi->getRootObject())
+            mPhi_Forward_Hi->Fill(correctedJet.phi());
+
+        }
+
       }
       if (!isScoutingJet_) {
         mPt = map_of_MEs[DirName + "/" + "Pt"];
