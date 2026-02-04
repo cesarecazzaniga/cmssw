@@ -61,3 +61,12 @@ using edm::RandomMultiParticlePGunProducer;
 DEFINE_FWK_MODULE(RandomMultiParticlePGunProducer);
 using edm::RandomXiThetaGunProducer;
 DEFINE_FWK_MODULE(RandomXiThetaGunProducer);
+
+//added
+#include "IOMC/ParticleGuns/interface/FlatEtaRangeGunProducer.h"
+//added
+
+//added
+using edm::FlatEtaRangeGunProducer;
+DEFINE_FWK_MODULE(FlatEtaRangeGunProducer);
+//added
