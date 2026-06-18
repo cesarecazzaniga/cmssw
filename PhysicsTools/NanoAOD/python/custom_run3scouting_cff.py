@@ -16,12 +16,12 @@ from PhysicsTools.NanoAOD.globals_cff import puTable
 #############################
 
 # Scouting Muon
-scoutingMuonTableTask = cms.Task(scoutingMuonTable)
-scoutingMuonDisplacedVertexTableTask = cms.Task(scoutingMuonDisplacedVertexTable)
+#scoutingMuonTableTask = cms.Task(scoutingMuonTable)
+#scoutingMuonDisplacedVertexTableTask = cms.Task(scoutingMuonDisplacedVertexTable)
 
 # from 2024, there are two muon collections (https://its.cern.ch/jira/browse/CMSHLT-3089)
-(run3_scouting_2024 | run3_scouting_2025).toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
-    .toReplaceWith(scoutingMuonDisplacedVertexTableTask, cms.Task(scoutingMuonVtxDisplacedVertexTable, scoutingMuonNoVtxDisplacedVertexTable))
+#(run3_scouting_2024 | run3_scouting_2025).toReplaceWith(scoutingMuonTableTask, cms.Task(scoutingMuonVtxTable, scoutingMuonNoVtxTable))\
+#    .toReplaceWith(scoutingMuonDisplacedVertexTableTask, cms.Task(scoutingMuonVtxDisplacedVertexTable, scoutingMuonNoVtxDisplacedVertexTable))
 
 # Scouting Electron
 scoutingElectronTableTask = cms.Task(scoutingElectronTable)
@@ -75,14 +75,14 @@ l1bitsScouting = l1bits.clone(src="gtStage2DigisScouting")
 
 ## L1 objects
 from PhysicsTools.NanoAOD.l1trig_cff import *
-l1MuScoutingTable = l1MuTable.clone(src=cms.InputTag("gtStage2DigisScouting", "Muon"))
+#l1MuScoutingTable = l1MuTable.clone(src=cms.InputTag("gtStage2DigisScouting", "Muon"))
 l1EGScoutingTable = l1EGTable.clone(src=cms.InputTag("gtStage2DigisScouting", "EGamma"))
 l1TauScoutingTable = l1TauTable.clone(src=cms.InputTag("gtStage2DigisScouting", "Tau"))
 l1JetScoutingTable = l1JetTable.clone(src=cms.InputTag("gtStage2DigisScouting", "Jet"))
 l1EtSumScoutingTable = l1EtSumTable.clone(src=cms.InputTag("gtStage2DigisScouting", "EtSum"))
 
 # reduce the variables to the core variables as only these are available in gtStage2Digis
-l1MuScoutingTable.variables = cms.PSet(l1MuonReducedVars)
+#l1MuScoutingTable.variables = cms.PSet(l1MuonReducedVars)
 l1EGScoutingTable.variables = cms.PSet(l1EGReducedVars)
 l1TauScoutingTable.variables = cms.PSet(l1TauReducedVars)
 l1JetScoutingTable.variables = cms.PSet(l1JetReducedVars)
@@ -97,7 +97,7 @@ def prepareScoutingNanoTaskCommon():
     # Scouting original objects
     # all scouting objects are saved except PF Candidate and Track
     scoutingNanoTaskCommon = cms.Task()
-    scoutingNanoTaskCommon.add(scoutingMuonTableTask, scoutingMuonDisplacedVertexTableTask)
+#    scoutingNanoTaskCommon.add(scoutingMuonTableTask, scoutingMuonDisplacedVertexTableTask)
     scoutingNanoTaskCommon.add(scoutingElectronTableTask)
     scoutingNanoTaskCommon.add(scoutingPhotonTable)
     scoutingNanoTaskCommon.add(scoutingPrimaryVertexTable)
@@ -113,7 +113,7 @@ def prepareScoutingNanoTaskCommon():
 # tasks related to trigger bits and objects
 def prepareScoutingTriggerTask():
     scoutingTriggerTask = cms.Task(gtStage2DigisScouting, l1bitsScouting)
-    scoutingTriggerTask.add(cms.Task(l1MuScoutingTable, l1EGScoutingTable, l1TauScoutingTable, l1JetScoutingTable, l1EtSumScoutingTable))
+    scoutingTriggerTask.add(cms.Task(l1EGScoutingTable, l1TauScoutingTable, l1JetScoutingTable, l1EtSumScoutingTable)) #l1MuScoutingTable
     return scoutingTriggerTask
 
 # additional tasks for running on MC
@@ -191,7 +191,7 @@ def customiseScoutingNanoForScoutingPFMonitor(process):
     process.scoutingTriggerTask.add(process.l1bits)
 
     # change src for l1 objects
-    process.l1MuScoutingTable.src = cms.InputTag("gmtStage2Digis", "Muon")
+    #process.l1MuScoutingTable.src = cms.InputTag("gmtStage2Digis", "Muon")
     process.l1EGScoutingTable.src = cms.InputTag("caloStage2Digis", "EGamma")
     process.l1TauScoutingTable.src = cms.InputTag("caloStage2Digis", "Tau")
     process.l1JetScoutingTable.src = cms.InputTag("caloStage2Digis", "Jet")
@@ -216,7 +216,7 @@ def customiseScoutingNanoFromMini(process):
     process.scoutingTriggerTask.add(process.l1bits)
 
     # change src for l1 objects
-    process.l1MuScoutingTable.src = cms.InputTag("gmtStage2Digis", "Muon")
+    #process.l1MuScoutingTable.src = cms.InputTag("gmtStage2Digis", "Muon")
     process.l1EGScoutingTable.src = cms.InputTag("caloStage2Digis", "EGamma")
     process.l1TauScoutingTable.src = cms.InputTag("caloStage2Digis", "Tau")
     process.l1JetScoutingTable.src = cms.InputTag("caloStage2Digis", "Jet")
