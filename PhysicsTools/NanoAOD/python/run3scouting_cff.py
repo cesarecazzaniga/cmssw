@@ -13,97 +13,97 @@ from Configuration.Eras.Modifier_run3_scouting_2025_cff import run3_scouting_202
 # Scouting Muon
 # https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingMuon.h
 
-#scoutingMuonTable = cms.EDProducer("SimpleRun3ScoutingMuonCollectionFlatTableProducer",
-#    src = cms.InputTag("hltScoutingMuonPacker"),
-#    cut = cms.string(""),
-#    name = cms.string("ScoutingMuon"),
-#    doc  = cms.string("Scouting Muon"),
-#    singleton = cms.bool(False),
-#    extension = cms.bool(False),
-#    variables = cms.PSet(
-#        pt = Var('pt', 'float', precision=10, doc='pt'),
-#        eta = Var('eta', 'float', precision=10, doc='eta'),
-#        phi = Var('phi', 'float', precision=10, doc='phi'),
-#        m = Var('m', 'float', precision=10, doc='mass'),
-#        type = Var('type', 'int', doc='type of muon'),
-#        charge = Var('charge', 'int', doc='track charge'),
-#        normchi2 = Var('normalizedChi2', 'float', precision=10, doc='normalized chi squared'),
-#        ecalIso = Var('ecalIso', 'float', precision=10, doc='PF ECAL isolation'),
-#        hcalIso = Var('hcalIso', 'float', precision=10, doc='PF HCAL isolation'),
-#        trackIso = Var('trackIso', 'float', precision=10, doc='track isolation'),
-#        nValidStandAloneMuonHits = Var('nValidStandAloneMuonHits', 'int', doc='number of valid standalone muon hits'),
-#        nStandAloneMuonMatchedStations = Var('nStandAloneMuonMatchedStations', 'int', doc='number of muon stations with valid hits'),
-#        nValidRecoMuonHits = Var('nValidRecoMuonHits', 'int', doc='number of valid reco muon hits'),
-#        nRecoMuonChambers = Var('nRecoMuonChambers', 'int', doc='number of reco muon chambers'),
-#        nRecoMuonChambersCSCorDT = Var('nRecoMuonChambersCSCorDT', 'int', doc='number of reco muon chambers CSC or DT'),
-#        nRecoMuonMatches = Var('nRecoMuonMatches', 'int', doc='number of reco muon matches'),
-#        nRecoMuonMatchedStations = Var('nRecoMuonMatchedStations', 'int', doc='number of reco muon matched stations'),
-#        nRecoMuonExpectedMatchedStations = Var('nRecoMuonExpectedMatchedStations', 'int', doc='number of reco muon expected matched stations'),
-#        recoMuonStationMask = Var('recoMuonStationMask', 'int', doc='reco muon station mask'),
-#        nRecoMuonMatchedRPCLayers = Var('nRecoMuonMatchedRPCLayers', 'int', doc='number of reco muon matched RPC layers'),
-#        recoMuonRPClayerMask = Var('recoMuonRPClayerMask', 'int', doc='reco muon RPC layer mask'),
-#        nValidPixelHits = Var('nValidPixelHits', 'int', doc='number of valid pixel hits'),
-#        nValidStripHits = Var('nValidStripHits', 'int', doc='number of valid strip hits'),
-#        nPixelLayersWithMeasurement = Var('nPixelLayersWithMeasurement', 'int', doc='number of pixel layers with measurement'),
-#        nTrackerLayersWithMeasurement = Var('nTrackerLayersWithMeasurement', 'int', doc='number of tracker layer with measurements'),
-#        trk_chi2 = Var('trk_chi2', 'float', precision=10, doc='track chi squared'),
-#        trk_ndof = Var('trk_ndof', 'float', precision=10, doc='track number of degrees of freedom'),
-#        trk_dxy = Var('trk_dxy', 'float', precision=10, doc='track dxy'),
-#        trk_dz = Var('trk_dz', 'float', precision=10, doc='track dz'),
-#        trk_qoverp = Var('trk_qoverp', 'float', precision=10, doc='track qoverp'),
-#        trk_lambda = Var('trk_lambda', 'float', precision=10, doc='track lambda'),
-#        trk_pt = Var('trk_pt', 'float', precision=10, doc='track pt'),
-#        trk_phi = Var('trk_phi', 'float', precision=10, doc='track phi'),
-#        trk_eta = Var('trk_eta', 'float', precision=10, doc='track eta'),
-#        trk_dxyError = Var('trk_dxyError', 'float', precision=10, doc='track dxyError'),
-#        trk_dzError = Var('trk_dzError', 'float', precision=10, doc='tracl dzError'),
-#        trk_qoverpError = Var('trk_qoverpError', 'float', precision=10, doc='track qoverpError'),
-#        trk_lambdaError = Var('trk_lambdaError', 'float', precision=10, doc='track lambdaError'),
-#        trk_phiError = Var('trk_phiError', 'float', precision=10, doc='track phiError'),
-#        trk_dsz = Var('trk_dsz', 'float', precision=10, doc='track dsz'),
-#        trk_dszError = Var('trk_dszError', 'float', precision=10, doc='track dszError'),
-#        trk_qoverp_lambda_cov = Var('trk_qoverp_lambda_cov', 'float', precision=10, doc='track qoverp lambda covariance ((0,1) element of covariance matrix)'),
-#        trk_qoverp_phi_cov = Var('trk_qoverp_phi_cov', 'float', precision=10, doc='track qoverp phi covariance ((0,2) element of covariance matrix)'),
-#        trk_qoverp_dxy_cov = Var('trk_qoverp_dxy_cov', 'float', precision=10, doc='track qoverp dxy covariance ((0,3) element of covariance matrix)'),
-#        trk_qoverp_dsz_cov = Var('trk_qoverp_dsz_cov', 'float', precision=10, doc='track qoverp dsz covariance ((0,4) element of covariance matrix)'),
-#        trk_lambda_phi_cov = Var('trk_lambda_phi_cov', 'float', precision=10, doc='track lambda phi covariance ((1,2) element of covariance matrix)'),
-#        trk_lambda_dxy_cov = Var('trk_lambda_dxy_cov', 'float', precision=10, doc='track lambda dxy covariance ((1,3) element of covariance matrix)'),
-#        trk_lambda_dsz_cov = Var('trk_lambda_dsz_cov', 'float', precision=10, doc='track lambda dsz covariance ((1,4) element of covariance matrix)'),
-#        trk_phi_dxy_cov = Var('trk_phi_dxy_cov', 'float', precision=10, doc='track phi dxy covariance ((2,3) element of covariance matrix)'),
-#        trk_phi_dsz_cov = Var('trk_phi_dsz_cov', 'float', precision=10, doc='track phi dsz covariance ((2,4) element of covariance matrix)'),
-#        trk_dxy_dsz_cov = Var('trk_dxy_dsz_cov', 'float', precision=10, doc='track dxy dsz covariance ((3,4) element of covariance matrix)'),
-#        trk_vx = Var('trk_vx', 'float', precision=10, doc='track vx'),
-#        trk_vy = Var('trk_vy', 'float', precision=10, doc='track vy'),
-#        trk_vz = Var('trk_vz', 'float', precision=10, doc='track vz'),
-#        trk_hitPattern_hitCount = Var("trk_hitPattern().hitCount", "uint8", doc="track hitPattern hitCount"),
-#        trk_hitPattern_beginTrackHits = Var("trk_hitPattern().beginTrackHits", "uint8", doc="track hitPattern beginTrackHits"),
-#        trk_hitPattern_endTrackHits = Var("trk_hitPattern().endTrackHits", "uint8", doc="track hitPattern endTrackHits"),
-#        trk_hitPattern_beginInner = Var("trk_hitPattern().beginInner", "uint8", doc="track hitPattern beginInner"),
-#        trk_hitPattern_endInner = Var("trk_hitPattern().endInner", "uint8", doc="track hitPattern endInner"),
-#        trk_hitPattern_beginOuter = Var("trk_hitPattern().beginOuter", "uint8", doc="track hitPattern beginOuter"),
-#        trk_hitPattern_endOuter = Var("trk_hitPattern().endOuter", "uint8", doc="track hitPattern endOuter"),
-#    ),
-#    collectionVariables = cms.PSet(
-#        ScoutingMuonVtxIndx = cms.PSet(
-#            name = cms.string("ScoutingMuonVtxIndx"),
-#            doc = cms.string("Scouting Muon Displaced Vertex Index"),
-#            useCount = cms.bool(True),
-#            useOffset = cms.bool(True),
-#            variables = cms.PSet(
-#                vtxIndx = Var('vtxIndx', 'int', doc='vertex indices'),
-#            ),
-#        ),
-#        ScoutingMuonHitPattern = cms.PSet(
-#            name = cms.string("ScoutingMuonHitPattern"),
-#            doc = cms.string("Scouting Muon HitPattern"),
-#            useCount = cms.bool(True),
-#            useOffset = cms.bool(True),
-#            variables = cms.PSet(
-#                hitPattern = Var('trk_hitPattern().hitPattern', 'uint16', doc='track hitPattern hitPattern'),
-#            ),
-#        )
-#    )
-#)
+scoutingMuonTable = cms.EDProducer("SimpleRun3ScoutingMuonCollectionFlatTableProducer",
+    src = cms.InputTag("hltScoutingMuonPacker"),
+    cut = cms.string(""),
+    name = cms.string("ScoutingMuon"),
+    doc  = cms.string("Scouting Muon"),
+    singleton = cms.bool(False),
+    extension = cms.bool(False),
+    variables = cms.PSet(
+        pt = Var('pt', 'float', precision=10, doc='pt'),
+        eta = Var('eta', 'float', precision=10, doc='eta'),
+        phi = Var('phi', 'float', precision=10, doc='phi'),
+        m = Var('m', 'float', precision=10, doc='mass'),
+        type = Var('type', 'int', doc='type of muon'),
+        charge = Var('charge', 'int', doc='track charge'),
+        normchi2 = Var('normalizedChi2', 'float', precision=10, doc='normalized chi squared'),
+        ecalIso = Var('ecalIso', 'float', precision=10, doc='PF ECAL isolation'),
+        hcalIso = Var('hcalIso', 'float', precision=10, doc='PF HCAL isolation'),
+        trackIso = Var('trackIso', 'float', precision=10, doc='track isolation'),
+        nValidStandAloneMuonHits = Var('nValidStandAloneMuonHits', 'int', doc='number of valid standalone muon hits'),
+        nStandAloneMuonMatchedStations = Var('nStandAloneMuonMatchedStations', 'int', doc='number of muon stations with valid hits'),
+        nValidRecoMuonHits = Var('nValidRecoMuonHits', 'int', doc='number of valid reco muon hits'),
+        nRecoMuonChambers = Var('nRecoMuonChambers', 'int', doc='number of reco muon chambers'),
+        nRecoMuonChambersCSCorDT = Var('nRecoMuonChambersCSCorDT', 'int', doc='number of reco muon chambers CSC or DT'),
+        nRecoMuonMatches = Var('nRecoMuonMatches', 'int', doc='number of reco muon matches'),
+        nRecoMuonMatchedStations = Var('nRecoMuonMatchedStations', 'int', doc='number of reco muon matched stations'),
+        nRecoMuonExpectedMatchedStations = Var('nRecoMuonExpectedMatchedStations', 'int', doc='number of reco muon expected matched stations'),
+        recoMuonStationMask = Var('recoMuonStationMask', 'int', doc='reco muon station mask'),
+        nRecoMuonMatchedRPCLayers = Var('nRecoMuonMatchedRPCLayers', 'int', doc='number of reco muon matched RPC layers'),
+        recoMuonRPClayerMask = Var('recoMuonRPClayerMask', 'int', doc='reco muon RPC layer mask'),
+        nValidPixelHits = Var('nValidPixelHits', 'int', doc='number of valid pixel hits'),
+        nValidStripHits = Var('nValidStripHits', 'int', doc='number of valid strip hits'),
+        nPixelLayersWithMeasurement = Var('nPixelLayersWithMeasurement', 'int', doc='number of pixel layers with measurement'),
+        nTrackerLayersWithMeasurement = Var('nTrackerLayersWithMeasurement', 'int', doc='number of tracker layer with measurements'),
+        trk_chi2 = Var('trk_chi2', 'float', precision=10, doc='track chi squared'),
+        trk_ndof = Var('trk_ndof', 'float', precision=10, doc='track number of degrees of freedom'),
+        trk_dxy = Var('trk_dxy', 'float', precision=10, doc='track dxy'),
+        trk_dz = Var('trk_dz', 'float', precision=10, doc='track dz'),
+        trk_qoverp = Var('trk_qoverp', 'float', precision=10, doc='track qoverp'),
+        trk_lambda = Var('trk_lambda', 'float', precision=10, doc='track lambda'),
+        trk_pt = Var('trk_pt', 'float', precision=10, doc='track pt'),
+        trk_phi = Var('trk_phi', 'float', precision=10, doc='track phi'),
+        trk_eta = Var('trk_eta', 'float', precision=10, doc='track eta'),
+        trk_dxyError = Var('trk_dxyError', 'float', precision=10, doc='track dxyError'),
+        trk_dzError = Var('trk_dzError', 'float', precision=10, doc='tracl dzError'),
+        trk_qoverpError = Var('trk_qoverpError', 'float', precision=10, doc='track qoverpError'),
+        trk_lambdaError = Var('trk_lambdaError', 'float', precision=10, doc='track lambdaError'),
+        trk_phiError = Var('trk_phiError', 'float', precision=10, doc='track phiError'),
+        trk_dsz = Var('trk_dsz', 'float', precision=10, doc='track dsz'),
+        trk_dszError = Var('trk_dszError', 'float', precision=10, doc='track dszError'),
+        trk_qoverp_lambda_cov = Var('trk_qoverp_lambda_cov', 'float', precision=10, doc='track qoverp lambda covariance ((0,1) element of covariance matrix)'),
+        trk_qoverp_phi_cov = Var('trk_qoverp_phi_cov', 'float', precision=10, doc='track qoverp phi covariance ((0,2) element of covariance matrix)'),
+        trk_qoverp_dxy_cov = Var('trk_qoverp_dxy_cov', 'float', precision=10, doc='track qoverp dxy covariance ((0,3) element of covariance matrix)'),
+        trk_qoverp_dsz_cov = Var('trk_qoverp_dsz_cov', 'float', precision=10, doc='track qoverp dsz covariance ((0,4) element of covariance matrix)'),
+        trk_lambda_phi_cov = Var('trk_lambda_phi_cov', 'float', precision=10, doc='track lambda phi covariance ((1,2) element of covariance matrix)'),
+        trk_lambda_dxy_cov = Var('trk_lambda_dxy_cov', 'float', precision=10, doc='track lambda dxy covariance ((1,3) element of covariance matrix)'),
+        trk_lambda_dsz_cov = Var('trk_lambda_dsz_cov', 'float', precision=10, doc='track lambda dsz covariance ((1,4) element of covariance matrix)'),
+        trk_phi_dxy_cov = Var('trk_phi_dxy_cov', 'float', precision=10, doc='track phi dxy covariance ((2,3) element of covariance matrix)'),
+        trk_phi_dsz_cov = Var('trk_phi_dsz_cov', 'float', precision=10, doc='track phi dsz covariance ((2,4) element of covariance matrix)'),
+        trk_dxy_dsz_cov = Var('trk_dxy_dsz_cov', 'float', precision=10, doc='track dxy dsz covariance ((3,4) element of covariance matrix)'),
+        trk_vx = Var('trk_vx', 'float', precision=10, doc='track vx'),
+        trk_vy = Var('trk_vy', 'float', precision=10, doc='track vy'),
+        trk_vz = Var('trk_vz', 'float', precision=10, doc='track vz'),
+        trk_hitPattern_hitCount = Var("trk_hitPattern().hitCount", "uint8", doc="track hitPattern hitCount"),
+        trk_hitPattern_beginTrackHits = Var("trk_hitPattern().beginTrackHits", "uint8", doc="track hitPattern beginTrackHits"),
+        trk_hitPattern_endTrackHits = Var("trk_hitPattern().endTrackHits", "uint8", doc="track hitPattern endTrackHits"),
+        trk_hitPattern_beginInner = Var("trk_hitPattern().beginInner", "uint8", doc="track hitPattern beginInner"),
+        trk_hitPattern_endInner = Var("trk_hitPattern().endInner", "uint8", doc="track hitPattern endInner"),
+        trk_hitPattern_beginOuter = Var("trk_hitPattern().beginOuter", "uint8", doc="track hitPattern beginOuter"),
+        trk_hitPattern_endOuter = Var("trk_hitPattern().endOuter", "uint8", doc="track hitPattern endOuter"),
+    ),
+    collectionVariables = cms.PSet(
+        ScoutingMuonVtxIndx = cms.PSet(
+            name = cms.string("ScoutingMuonVtxIndx"),
+            doc = cms.string("Scouting Muon Displaced Vertex Index"),
+            useCount = cms.bool(True),
+            useOffset = cms.bool(True),
+            variables = cms.PSet(
+                vtxIndx = Var('vtxIndx', 'int', doc='vertex indices'),
+            ),
+        ),
+        ScoutingMuonHitPattern = cms.PSet(
+            name = cms.string("ScoutingMuonHitPattern"),
+            doc = cms.string("Scouting Muon HitPattern"),
+            useCount = cms.bool(True),
+            useOffset = cms.bool(True),
+            variables = cms.PSet(
+                hitPattern = Var('trk_hitPattern().hitPattern', 'uint16', doc='track hitPattern hitPattern'),
+            ),
+        )
+    )
+)
 
 # Scouting Vertex
 # format during 2022-23 data-taking used for both primary vertex and dimuon displaced vertex
@@ -136,51 +136,51 @@ scoutingVertexVariables = cms.PSet(
 # Scouting Displaced Vertex (from dimuon)
 # https://github.com/cms-sw/cmssw/blob/CMSSW_14_0_X/DataFormats/Scouting/interface/Run3ScoutingVertex.h
 
-#scoutingMuonDisplacedVertexTable = cms.EDProducer("SimpleRun3ScoutingVertexFlatTableProducer",
-#    src = cms.InputTag("hltScoutingMuonPacker","displacedVtx"),
-#    cut = cms.string(""),
-#    name = cms.string("ScoutingMuonDisplacedVertex"),
-#    doc  = cms.string("Scouting Muon Displaced Vertex"),
-#    singleton = cms.bool(False),
-#    extension = cms.bool(False),
-#    variables = scoutingVertexVariables,
-#)
+scoutingMuonDisplacedVertexTable = cms.EDProducer("SimpleRun3ScoutingVertexFlatTableProducer",
+    src = cms.InputTag("hltScoutingMuonPacker","displacedVtx"),
+    cut = cms.string(""),
+    name = cms.string("ScoutingMuonDisplacedVertex"),
+    doc  = cms.string("Scouting Muon Displaced Vertex"),
+    singleton = cms.bool(False),
+    extension = cms.bool(False),
+    variables = scoutingVertexVariables,
+)
 
 # from 2024, there are two scouting muon collections
 
 # muonVtx
-#scoutingMuonVtxTable = scoutingMuonTable.clone(
-#    src = cms.InputTag("hltScoutingMuonPackerVtx"),
-#    name = cms.string("ScoutingMuonVtx"),
-#    doc  = cms.string("Scouting Muon Vtx"),
-#)
-#scoutingMuonVtxTable.collectionVariables.ScoutingMuonVtxIndx.name = cms.string("ScoutingMuonVtxVtxIndx")
-#scoutingMuonVtxTable.collectionVariables.ScoutingMuonVtxIndx.doc = cms.string("ScoutingMuonVtx VtxIndx")
-#scoutingMuonVtxTable.collectionVariables.ScoutingMuonHitPattern.name = cms.string("ScoutingMuonVtxHitPattern")
-#scoutingMuonVtxTable.collectionVariables.ScoutingMuonHitPattern.doc = cms.string("ScoutingMuonVtx HitPattern")
+scoutingMuonVtxTable = scoutingMuonTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerVtx"),
+    name = cms.string("ScoutingMuonVtx"),
+    doc  = cms.string("Scouting Muon Vtx"),
+)
+scoutingMuonVtxTable.collectionVariables.ScoutingMuonVtxIndx.name = cms.string("ScoutingMuonVtxVtxIndx")
+scoutingMuonVtxTable.collectionVariables.ScoutingMuonVtxIndx.doc = cms.string("ScoutingMuonVtx VtxIndx")
+scoutingMuonVtxTable.collectionVariables.ScoutingMuonHitPattern.name = cms.string("ScoutingMuonVtxHitPattern")
+scoutingMuonVtxTable.collectionVariables.ScoutingMuonHitPattern.doc = cms.string("ScoutingMuonVtx HitPattern")
 #
-#scoutingMuonVtxDisplacedVertexTable = scoutingMuonDisplacedVertexTable.clone(
-#    src = cms.InputTag("hltScoutingMuonPackerVtx", "displacedVtx"),
-#    name = cms.string("ScoutingMuonVtxDisplacedVertex"),
-#    doc  = cms.string("Scouting Muon Vtx DisplacedVertex"),
-#)
+scoutingMuonVtxDisplacedVertexTable = scoutingMuonDisplacedVertexTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerVtx", "displacedVtx"),
+    name = cms.string("ScoutingMuonVtxDisplacedVertex"),
+    doc  = cms.string("Scouting Muon Vtx DisplacedVertex"),
+)
 #
 ## muonNoVtx
-#scoutingMuonNoVtxTable = scoutingMuonTable.clone(
-#    src = cms.InputTag("hltScoutingMuonPackerNoVtx"),
-#    name = cms.string("ScoutingMuonNoVtx"),
-#    doc  = cms.string("Scouting Muon NoVtx"),
-#)
-#scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonVtxIndx.name = cms.string("ScoutingMuonNoVtxVtxIndx")
-#scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonVtxIndx.doc = cms.string("ScoutingMuonNoVtx VtxIndx")
-#scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonHitPattern.name = cms.string("ScoutingMuonNoVtxHitPattern")
-#scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonHitPattern.doc = cms.string("ScoutingMuonNoVtx HitPattern")
+scoutingMuonNoVtxTable = scoutingMuonTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerNoVtx"),
+    name = cms.string("ScoutingMuonNoVtx"),
+    doc  = cms.string("Scouting Muon NoVtx"),
+)
+scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonVtxIndx.name = cms.string("ScoutingMuonNoVtxVtxIndx")
+scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonVtxIndx.doc = cms.string("ScoutingMuonNoVtx VtxIndx")
+scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonHitPattern.name = cms.string("ScoutingMuonNoVtxHitPattern")
+scoutingMuonNoVtxTable.collectionVariables.ScoutingMuonHitPattern.doc = cms.string("ScoutingMuonNoVtx HitPattern")
 #
-#scoutingMuonNoVtxDisplacedVertexTable = scoutingMuonDisplacedVertexTable.clone(
-#    src = cms.InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"),
-#    name = cms.string("ScoutingMuonNoVtxDisplacedVertex"),
-#    doc  = cms.string("Scouting Muon NoVtx DisplacedVertex"),
-#)
+scoutingMuonNoVtxDisplacedVertexTable = scoutingMuonDisplacedVertexTable.clone(
+    src = cms.InputTag("hltScoutingMuonPackerNoVtx", "displacedVtx"),
+    name = cms.string("ScoutingMuonNoVtxDisplacedVertex"),
+    doc  = cms.string("Scouting Muon NoVtx DisplacedVertex"),
+)
 
 # Scouting Electron
 # format during 2022 data-taking
