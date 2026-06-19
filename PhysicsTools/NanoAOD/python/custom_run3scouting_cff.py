@@ -4,6 +4,10 @@ from EventFilter.L1TRawToDigi.gtStage2Digis_cfi import gtStage2Digis
 from PhysicsTools.NanoAOD.triggerObjects_cff import l1bits
 from PhysicsTools.NanoAOD.globals_cff import puTable
 
+#added for matching of pfcands with jets
+from PhysicsTools.NanoAOD.recoPFJetConstituentTableProducer_cfi import recoPFJetConstituentTableProducer
+
+
 ############################
 ### Sub Task Definitions ###
 ############################
@@ -64,6 +68,40 @@ scoutingFatPFJetReclusterMatchGenExtensionTask = cms.Task(
     scoutingFatPFJetReclusterMatchGen, # gen jet matching
     scoutingFatPFJetReclusterMatchGenExtensionTable
 )
+
+#####################################################
+# Scouting PF Candidate <-> Jet Constituent Matching #
+#####################################################
+# PFNano-style (https://github.com/cms-jet/PFNano) index tables linking the
+# reclustered scouting jets back to their constituent scoutingPFCandidate
+# entries. One row per (jet, constituent) pair: jetIdx indexes into the jet
+# collection, pFCandsIdx indexes into ScoutingPFCandidate (i.e. the same
+# indexing as scoutingPFCandidateTable).
+#
+# These depend on scoutingPFCandidate, which is itself opt-in (only scheduled
+# via addScoutingPFCandidate), so they are NOT added to scoutingPFJetReclusterTask
+# / scoutingFatPFJetReclusterTask (which run by default). Instead they are kept
+# in their own opt-in tasks below and wired in via addScoutingPFJetReclusterPFCands
+# / addScoutingFatPFJetReclusterPFCands, which both require addScoutingPFCandidate
+# to have been applied first.
+
+scoutingPFJetReclusterPFCandsTable = recoPFJetConstituentTableProducer.clone(
+    jets = cms.InputTag("scoutingPFJetRecluster"),
+    candidates = cms.InputTag("scoutingPFCandidate"),
+    name = cms.string("JetPFCands"),
+    idx_name = cms.string("pFCandsIdx"),
+    doc = cms.string("ScoutingPFJetRecluster to ScoutingPFCandidate constituent index table"),
+)
+scoutingPFJetReclusterPFCandsTask = cms.Task(scoutingPFJetReclusterPFCandsTable)
+
+scoutingFatPFJetReclusterPFCandsTable = recoPFJetConstituentTableProducer.clone(
+    jets = cms.InputTag("scoutingFatPFJetRecluster"),
+    candidates = cms.InputTag("scoutingPFCandidate"),
+    name = cms.string("FatJetPFCands"),
+    idx_name = cms.string("pFCandsIdx"),
+    doc = cms.string("ScoutingFatPFJetRecluster to ScoutingPFCandidate constituent index table"),
+)
+scoutingFatPFJetReclusterPFCandsTask = cms.Task(scoutingFatPFJetReclusterPFCandsTable)
 
 ############################
 # Trigger Bits and Objects #
@@ -318,4 +356,34 @@ def addScoutingElectronTrack(process):
         phiMode = Var("trkphiMode", "float", doc="track phiMode"),
         qoverpModeError = Var("trkqoverpModeError", "float", doc="track qoverpModeError"),
     )
+    return process
+
+# adds a PFNano-style (https://github.com/cms-jet/PFNano) index table linking
+# ScoutingPFJetRecluster (AK4) to ScoutingPFCandidate ('JetPFCands').
+# must be applied AFTER addScoutingPFCandidate, since this table requires
+# scoutingPFCandidate to exist in the event; raises rather than silently
+# producing a dangling/undefined table if that customizer wasn't applied first.
+# e.g. --customise PhysicsTools/NanoAOD/python/custom_run3scouting_cff.addScoutingPFCandidate,PhysicsTools/NanoAOD/python/custom_run3scouting_cff.addScoutingPFJetReclusterPFCands
+def addScoutingPFJetReclusterPFCands(process):
+    if not hasattr(process, "scoutingPFCandidate"):
+        raise RuntimeError(
+            "addScoutingPFJetReclusterPFCands requires scoutingPFCandidate to be "
+            "scheduled first -- apply addScoutingPFCandidate before this customizer."
+        )
+    process.scoutingNanoSequence.associate(scoutingPFJetReclusterPFCandsTask)
+    return process
+
+# adds a PFNano-style (https://github.com/cms-jet/PFNano) index table linking
+# ScoutingFatPFJetRecluster (AK8) to ScoutingPFCandidate ('FatJetPFCands').
+# must be applied AFTER addScoutingPFCandidate, since this table requires
+# scoutingPFCandidate to exist in the event; raises rather than silently
+# producing a dangling/undefined table if that customizer wasn't applied first.
+# e.g. --customise PhysicsTools/NanoAOD/python/custom_run3scouting_cff.addScoutingPFCandidate,PhysicsTools/NanoAOD/python/custom_run3scouting_cff.addScoutingFatPFJetReclusterPFCands
+def addScoutingFatPFJetReclusterPFCands(process):
+    if not hasattr(process, "scoutingPFCandidate"):
+        raise RuntimeError(
+            "addScoutingFatPFJetReclusterPFCands requires scoutingPFCandidate to be "
+            "scheduled first -- apply addScoutingPFCandidate before this customizer."
+        )
+    process.scoutingNanoSequence.associate(scoutingFatPFJetReclusterPFCandsTask)
     return process

@@ -36,6 +36,8 @@
   <use name="RecoJets/JetAlgorithms"/>
   <use name="TrackingTools/Records"/>
   <use name="roottmva"/>
+  <use name="DataFormats/JetReco"/>
+  <use name="DataFormats/ParticleFlowCandidate"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
