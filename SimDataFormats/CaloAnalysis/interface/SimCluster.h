@@ -13,6 +13,11 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+
+//added
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+//added
+
 //
 // Forward declarations
 //
@@ -48,6 +53,9 @@ public:
 
   SimCluster(const SimTrack &simtrk);
   SimCluster(EncodedEventId eventID, uint32_t particleID);  // for PU
+  //added
+  SimCluster(const std::vector<SimTrack> &simtrks, int pdgId = 0);  // for merged clusters
+  //added
 
   // destructor
   ~SimCluster();
@@ -57,10 +65,11 @@ public:
    * Returns the PDG ID of the first associated gen particle. If there are no
    * gen particles associated then it returns type() from the first SimTrack. */
   int pdgId() const {
-    if (genParticles_.empty())
-      return g4Tracks_[0].type();
-    else
-      return (*genParticles_.begin())->pdgId();
+    //if (genParticles_.empty())
+    //  return g4Tracks_[0].type();
+    //else
+    //  return (*genParticles_.begin())->pdgId();
+    return pdgId_;
   }
 
   /** @brief Signal source, crossing number.
@@ -69,11 +78,15 @@ public:
    * SimTracks from different crossings in the SimCluster. */
   EncodedEventId eventId() const { return event_; }
 
+  //added
+  void merge();
+  //added
+
   uint64_t particleId() const { return particleId_; }
 
   // Setters for G4 and reco::GenParticle
   void addGenParticle(const reco::GenParticleRef &ref) { genParticles_.push_back(ref); }
-  void addG4Track(const SimTrack &t) { g4Tracks_.push_back(t); }
+  void addG4Track(const SimTrack &t); // { g4Tracks_.push_back(t); }
   /// iterators
   genp_iterator genParticle_begin() const { return genParticles_.begin(); }
   genp_iterator genParticle_end() const { return genParticles_.end(); }
@@ -184,6 +197,20 @@ public:
   /** @brief add rechit energy */
   void addHitEnergy(float energy) { energies_.emplace_back(energy); }
 
+//added
+  /** @brief Same as addRecHitAndFraction but when the hit is already registered, the fraction
+   * is increased. */
+  void addDuplicateRecHitAndFraction(uint32_t hit, float fraction) {
+    std::vector<uint32_t>::iterator it = std::find(hits_.begin(), hits_.end(), hit);
+    if (it == hits_.end()) {
+      // not added yet
+      addRecHitAndFraction(hit, fraction);
+    } else {
+      int i = std::distance(hits_.begin(), it);
+      fractions_[i] += fraction;
+    }
+  }
+//added
   /** @brief Returns list of rechit IDs and fractions for this SimCluster */
   std::vector<std::pair<uint32_t, float>> hits_and_fractions() const {
     std::vector<std::pair<uint32_t, float>> result;
@@ -246,10 +273,36 @@ public:
     ++nsimhits_;
   }
 
+  //added
+  void setImpactPoint(const math::XYZTLorentzVectorF &point) { impactPoint_ = point; }
+  const math::XYZTLorentzVectorF &impactPoint() const { return impactPoint_; }
+
+
+  void setImpactMomentum(const math::XYZTLorentzVectorF &mom) { impactMomentum_ = mom; }
+  const math::XYZTLorentzVectorF &impactMomentum() const { return impactMomentum_; }
+
+  math::XYZTLorentzVectorF impactMomentumMuOnly() const;
+  math::XYZTLorentzVectorF impactMomentumNoMu() const;
+
+  const std::vector<math::XYZTLorentzVectorF> &subImpactPoints() const { return subImpacts_; }
+  void setSubImpactPoints(const std::vector<math::XYZTLorentzVectorF> &p) { subImpacts_ = p; }
+ 
+  void setPdgId(int id) { pdgId_ = id; }
+
+  bool hasHGCALHit() const;
+  bool allHitsHGCAL() const;
+
+  SimCluster operator+(const SimCluster&);
+  SimCluster& operator+=(const SimCluster&);
+  //added
+
 protected:
   uint64_t nsimhits_{0};
   EncodedEventId event_;
-
+  
+  //added
+  int pdgId_{0};
+  //added
   uint32_t particleId_{0};
   float simhit_energy_{0.f};
   std::vector<uint32_t> hits_;
@@ -261,6 +314,13 @@ protected:
   /// references to G4 and reco::GenParticle tracks
   std::vector<SimTrack> g4Tracks_;
   reco::GenParticleRefVector genParticles_;
+
+  //added
+  math::XYZTLorentzVectorF impactPoint_;
+  math::XYZTLorentzVectorF impactMomentum_;
+ 
+  std::vector<math::XYZTLorentzVectorF> subImpacts_;
+  //added
 };
 
 #endif  // SimDataFormats_SimCluster_H
