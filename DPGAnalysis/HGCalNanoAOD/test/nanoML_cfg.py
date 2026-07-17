@@ -10,6 +10,12 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 process = cms.Process('NANO')
 options = VarParsing('python')
 options.setDefault('outputFile', 'testNanoML.root')
+options.register("nThreads", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+    "number of threads")
+options.register("runPFTruth", 0, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+    "Don't run PFTruth (currently not working with pileup)")
+#options.register("runPFTruth", 1, VarParsing.multiplicity.singleton, VarParsing.varType.int,
+#    "generate PFTruth")
 options.parseArguments()
 
 # import of standard configurations
@@ -18,17 +24,29 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff')
+process.load('Configuration.Geometry.GeometryExtendedRun4D121_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('DPGAnalysis.HGCalNanoAOD.nanoHGCML_cff')
+#added
+# Fix for ProductNotFound error with FlatEtaRangeGunProducer
+process.tpClusterProducer.pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel")
+process.tpClusterProducer.phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis", "Tracker")
+#added
+process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+# This isn't working with pileup
+if not options.runPFTruth:
+    process.pfTruth = cms.Sequence()
+    process.trackSCAssocTable = cms.Sequence()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
+process.options.numberOfThreads=cms.untracked.uint32(options.nThreads)
 
 # Input source
 process.source = cms.Source("PoolSource",
@@ -37,10 +55,10 @@ process.source = cms.Source("PoolSource",
 )
 
 process.options = cms.untracked.PSet(
-    FailPath = cms.untracked.vstring(),
+#    FailPath = cms.untracked.vstring(),
     IgnoreCompletely = cms.untracked.vstring(),
     Rethrow = cms.untracked.vstring(),
-    SkipEvent = cms.untracked.vstring(),
+#    SkipEvent = cms.untracked.vstring(),
     allowUnscheduled = cms.obsolete.untracked.bool,
     canDeleteEarly = cms.untracked.vstring(),
     emptyRunLumiMode = cms.obsolete.untracked.string,
@@ -89,7 +107,7 @@ process.NANOAODSIMoutput.outputCommands.remove("keep edmTriggerResults_*_*_*")
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T33_13TeV', '')
 
 # Path and EndPath definitions
 process.nanoAOD_step = cms.Path(process.nanoHGCMLSequence)
@@ -102,7 +120,11 @@ from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
 
 # customisation of the process.
-from DPGAnalysis.HGCalNanoAOD.nanoHGCML_cff import customizeReco
+from DPGAnalysis.HGCalNanoAOD.nanoHGCML_cff import customizeReco,customizeMergedSimClusters
+# Uncomment if you didn't schedule SimClusters/CaloParticles
+# process = customizeNoMergedCaloTruth(process)
+# merged simclusters (turn off if you aren't running through PEPR)
+process = customizeMergedSimClusters(process)
 process = customizeReco(process)
 
 # End of customisation functions
