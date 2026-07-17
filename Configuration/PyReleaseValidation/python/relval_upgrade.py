@@ -37,6 +37,8 @@ for year in upgradeKeys:
             for step in upgradeProperties[year][key]['ScenToRun']:
                 stepMaker = makeStepName
                 if 'Sim' in step and 'Fast' not in step and step != "Sim":
+                    if 'DisplacedParticleGun' in frag:
+                        step = 'GenSimDisplaced'
                     if 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenSimHLBeamSpot14'

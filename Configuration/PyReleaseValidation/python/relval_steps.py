@@ -1,4 +1,5 @@
 import sys
+from copy import deepcopy
 
 from .MatrixUtil import *
 
@@ -4816,6 +4817,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        }
     
     if beamspot is not None: upgradeStepDict['GenSim'][k]['--beamspot']=beamspot
+
+    upgradeStepDict['GenSimCloseBy'][k] = deepcopy(upgradeStepDict['GenSim'][k])
+    upgradeStepDict['GenSimCloseBy'][k]['--beamspot'] = 'HGCALCloseBy'
+
+    upgradeStepDict['GenSimDisplaced'][k] = deepcopy(upgradeStepDict['GenSim'][k])
+    upgradeStepDict['GenSimDisplaced'][k]['--beamspot'] = 'HGCALCloseBy'
 
     upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,

@@ -26,6 +26,13 @@ nanoMetadata = cms.EDProducer("UniqueStringProducer",
 genParticleTable.src = "genParticles"
 genParticleTable.variables = cms.PSet(genParticleTable.variables,
     charge = CandVars.charge)
+# genIso (externalVariables.iso) requires packedGenParticles, which only
+# exists after a full MiniAOD packing step. nanoHGCMLSequence runs directly
+# off RECO-tier genParticles and never produces packedGenParticles, so this
+# variable cannot be filled here. It is also not physically meaningful for a
+# single/few-particle gun sample (isolation is a sum over nearby particles
+# in a cone, and there's essentially nothing else nearby in these samples).
+del genParticleTable.externalVariables.iso
 
 nanoHGCMLSequence = cms.Sequence(nanoMetadata+
                                  hgcRecHits+ #so that modules can use them
