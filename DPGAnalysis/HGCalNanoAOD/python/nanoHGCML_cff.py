@@ -25,7 +25,17 @@ nanoMetadata = cms.EDProducer("UniqueStringProducer",
 
 genParticleTable.src = "genParticles"
 genParticleTable.variables = cms.PSet(genParticleTable.variables,
-    charge = CandVars.charge)
+    charge = CandVars.charge,
+    # Production vertex, needed to compute true vertex displacement for
+    # displaced-photon-gun studies. reco::GenParticle inherits vx()/vy()/vz()
+    # from reco::Candidate; DisplacedParticleGunProducer genuinely places
+    # the HepMC production vertex at the sampled Origin plane (Z fixed at 0
+    # by that producer, R sampled per-particle), so this should faithfully
+    # recover the real displaced position -- not just repeat some default.
+    vx = Var("vx", float, precision=10, doc="production vertex x (cm)"),
+    vy = Var("vy", float, precision=10, doc="production vertex y (cm)"),
+    vz = Var("vz", float, precision=10, doc="production vertex z (cm)")
+    )
 # genIso (externalVariables.iso) requires packedGenParticles, which only
 # exists after a full MiniAOD packing step. nanoHGCMLSequence runs directly
 # off RECO-tier genParticles and never produces packedGenParticles, so this
