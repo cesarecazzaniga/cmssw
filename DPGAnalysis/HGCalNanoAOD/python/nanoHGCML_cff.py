@@ -16,6 +16,7 @@ from DPGAnalysis.TrackNanoAOD.trackingParticles_cff import *
 from DPGAnalysis.TrackNanoAOD.tracks_cff import *
 from DPGAnalysis.PFNanoAOD.pfCands_cff import *
 from DPGAnalysis.PFNanoAOD.pfTruth_cff import *
+from DPGAnalysis.HGCalNanoAOD.hgcTriggerCells_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -54,7 +55,8 @@ nanoHGCMLSequence = cms.Sequence(nanoMetadata+
     #trackerSimHitTables+
     simClusterTables+
     trackingParticleTables+
-    caloParticleTables
+    caloParticleTables+
+    hgcTriggerCellsSequence
 )
 
 #if we turn off the custom cms-pepr functions we need to run this instead
@@ -85,7 +87,7 @@ nanoHGCMLSequence = cms.Sequence(nanoMetadata+
 #    process.nanoHGCMLSequence = nanoHGCMLRecoSequence
 #    return process
 
-#Added by Claude: redefine customizeReco process to avoid recursion error
+#Redefine customizeReco process to avoid recursion error
 def customizeReco(process):
     # Create a new sequence that contains everything needed
     process.nanoHGCMLRecoSequence = cms.Sequence(

@@ -14,6 +14,9 @@
 <use name="CondFormats/RunInfo"/>
 <use name="CondFormats/DataRecord"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
+<!-- Added for HGCalTriggerCellTableProducer.cc (L1 trigger primitives) -->
+<use name="DataFormats/L1THGCal"/>
+<use name="DataFormats/L1Trigger"/>
 <library file="*.cc" name="DPGAnalysisHGCalNanoAODPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
