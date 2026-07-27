@@ -39,6 +39,8 @@ for year in upgradeKeys:
                 if 'Sim' in step and 'Fast' not in step and step != "Sim":
                     if 'DisplacedParticleGun' in frag:
                         step = 'GenSimDisplaced'
+                    if 'DisplacedTwoBodyGun' in frag:
+                        step = 'GenSimDisplacedTwoBody'
                     if 'HLBeamSpot' in step:
                         if '14TeV' in frag:
                             step = 'GenSimHLBeamSpot14'
