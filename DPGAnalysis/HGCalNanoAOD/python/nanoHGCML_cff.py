@@ -123,4 +123,11 @@ def customizeMergedSimClusters(process):
     process.nanoHGCMLSequence.insert(-2, mergedSimClusterTables)
     #process.nanoHGCMLSequence.insert(-1, caloParticleMergedTables)
     process.nanoHGCMLSequence.insert(-1, caloParticleTables)
+    # LayerCluster<->MergedSimCluster association (fragmentation-free
+    # alternative to layerClusterToSimClusterTable's raw-SimCluster truth
+    # -- see layerClusters_cff.py's layerClusterMergedSimClusterTables
+    # docstring). Conditional on this same customization, since it depends
+    # on hgcSimTruth (scheduled just above via mergedSimClusterTables) --
+    # must NOT be added to the unconditional layerClusterTables Task.
+    process.nanoHGCMLSequence.insert(-1, layerClusterMergedSimClusterTables)
     return process
