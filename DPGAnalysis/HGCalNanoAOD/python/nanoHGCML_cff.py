@@ -17,6 +17,7 @@ from DPGAnalysis.TrackNanoAOD.tracks_cff import *
 from DPGAnalysis.PFNanoAOD.pfCands_cff import *
 from DPGAnalysis.PFNanoAOD.pfTruth_cff import *
 from DPGAnalysis.HGCalNanoAOD.hgcTriggerCells_cff import *
+from DPGAnalysis.HGCalNanoAOD.tracksters_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -46,17 +47,16 @@ genParticleTable.variables = cms.PSet(genParticleTable.variables,
 del genParticleTable.externalVariables.iso
 
 nanoHGCMLSequence = cms.Sequence(nanoMetadata+
-                                 hgcRecHits+ #so that modules can use them
+    hgcRecHits+
     genVertexTable+genVertexT0Table+genParticleTable+
     cms.Sequence(layerClusterTables)+
     simTrackTables+
     hgcSimHitsSequence+
-    # TODO: Fix producer and allow adding via configuration
-    #trackerSimHitTables+
     simClusterTables+
     trackingParticleTables+
     caloParticleTables+
-    hgcTriggerCellsSequence
+    hgcTriggerCellsSequence+
+    cms.Sequence(tracksterTables)        
 )
 
 #if we turn off the custom cms-pepr functions we need to run this instead
