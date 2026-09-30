@@ -4827,6 +4827,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     upgradeStepDict['GenSimDisplacedTwoBody'][k] = deepcopy(upgradeStepDict['GenSim'][k])
     upgradeStepDict['GenSimDisplacedTwoBody'][k]['--beamspot'] = 'HGCALCloseBy'
 
+    upgradeStepDict['DisplacedParticleGunProducerFlatEtaWithLocalPU'][k] = deepcopy(upgradeStepDict['GenSim'][k])
+    upgradeStepDict['DisplacedParticleGunProducerFlatEtaWithLocalPU'][k]['--beamspot'] = 'HGCALCloseBy'
+
     upgradeStepDict['GenSimHLBeamSpot'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt+'_13TeV',
