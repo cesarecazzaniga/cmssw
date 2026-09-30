@@ -18,6 +18,11 @@ from DPGAnalysis.PFNanoAOD.pfCands_cff import *
 from DPGAnalysis.PFNanoAOD.pfTruth_cff import *
 from DPGAnalysis.HGCalNanoAOD.hgcTriggerCells_cff import *
 from DPGAnalysis.HGCalNanoAOD.tracksters_cff import *
+# NEW: probe-vs-local-PU tagging for samples made with
+# DisplacedParticleGunProducerFlatEtaWithLocalPU (see that producer's own
+# "particleOrigin"/"particleBarcode" products and this file's use of them
+# below, next to del genParticleTable.externalVariables.iso).
+from DPGAnalysis.HGCalNanoAOD.genParticleOrigin_cff import genParticleOriginTable
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -46,9 +51,28 @@ genParticleTable.variables = cms.PSet(genParticleTable.variables,
 # in a cone, and there's essentially nothing else nearby in these samples).
 del genParticleTable.externalVariables.iso
 
+# NEW: GenPart_isLocalPU / GenPart_genBarcode, sourced from
+# genParticleOriginTable's edm::ValueMap<int>s (genParticleOrigin_cff.py),
+# which are themselves built from DisplacedParticleGunProducerFlatEta
+# WithLocalPU's own "particleOrigin"/"particleBarcode" products -- see
+# GenParticleOriginValueMapProducer.cc's header comment for why this is a
+# direct index match against "genParticles" (genParticleTable.src, set
+# just above) rather than something edm::Ptr/Ref-based. Harmless no-op
+# (branches will just be absent) for any sample NOT made with that gun --
+# genParticleOriginTable's own InputTags simply won't resolve, so drop it
+# from nanoHGCMLSequence below (and these two externalVariables) for such
+# samples rather than leaving a silently-failing module in the process.
+genParticleTable.externalVariables = cms.PSet(genParticleTable.externalVariables,
+    isLocalPU = ExtVar(cms.InputTag("genParticleOriginTable", "isLocalPU"), int,
+        doc="0 = probe particle, 1 = locally-sampled pileup particle "
+            "(DisplacedParticleGunProducerFlatEtaWithLocalPU only)."),
+    genBarcode = ExtVar(cms.InputTag("genParticleOriginTable", "barcode"), int,
+        doc="Original HepMC barcode from the generator step."),
+    )
+
 nanoHGCMLSequence = cms.Sequence(nanoMetadata+
     hgcRecHits+
-    genVertexTable+genVertexT0Table+genParticleTable+
+    genVertexTable+genVertexT0Table+genParticleOriginTable+genParticleTable+
     cms.Sequence(layerClusterTables)+
     simTrackTables+
     hgcSimHitsSequence+
@@ -56,7 +80,7 @@ nanoHGCMLSequence = cms.Sequence(nanoMetadata+
     trackingParticleTables+
     caloParticleTables+
     hgcTriggerCellsSequence+
-    cms.Sequence(tracksterTables)        
+    cms.Sequence(tracksterTables)
 )
 
 #if we turn off the custom cms-pepr functions we need to run this instead
@@ -68,7 +92,7 @@ nanoHGCMLSequence = cms.Sequence(nanoMetadata+
 #    hgcSimHitsSequence+
     # TODO: Fix producer and allow adding via configuration
     #trackerHitsPixee+muonCSCHitsTable+muonCSCHitsPositionTable+#trackerSimHitTables+
-#    simClusterTables+    
+#    simClusterTables+
 #    generalTrackTable+trackConversionsTable+trackDisplacedTable+
 #    caloParticleTables
 #)
@@ -104,7 +128,7 @@ def customizeReco(process):
     for path in process.paths.values():
         if hasattr(path, "replace"):
             path.replace(process.nanoHGCMLSequence, process.nanoHGCMLRecoSequence)
-    
+
     return process
 
 
@@ -130,4 +154,14 @@ def customizeMergedSimClusters(process):
     # on hgcSimTruth (scheduled just above via mergedSimClusterTables) --
     # must NOT be added to the unconditional layerClusterTables Task.
     process.nanoHGCMLSequence.insert(-1, layerClusterMergedSimClusterTables)
+    return process
+
+def customizeNoLocalPUTagging(process):
+    """Drop the isLocalPU/genBarcode tagging added above -- for any sample
+    NOT produced with DisplacedParticleGunProducerFlatEtaWithLocalPU, where
+    genParticleOriginTable's InputTags (module label 'generator', products
+    'particleOrigin'/'particleBarcode') don't exist and it would fail."""
+    del process.genParticleTable.externalVariables.isLocalPU
+    del process.genParticleTable.externalVariables.genBarcode
+    process.nanoHGCMLSequence.remove(process.genParticleOriginTable)
     return process

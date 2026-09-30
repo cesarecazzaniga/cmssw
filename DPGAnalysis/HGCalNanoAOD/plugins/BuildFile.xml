@@ -17,6 +17,8 @@
 <!-- Added for HGCalTriggerCellTableProducer.cc (L1 trigger primitives) -->
 <use name="DataFormats/L1THGCal"/>
 <use name="DataFormats/L1Trigger"/>
+<!-- Added for SimpleTracksterFlatTableProducer.cc (ticl::Trackster) -->
+<use name="DataFormats/HGCalReco"/>
 <library file="*.cc" name="DPGAnalysisHGCalNanoAODPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
